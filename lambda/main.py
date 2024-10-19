@@ -1,10 +1,10 @@
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
 import os
 from datetime import datetime
 import pytz
 
-client_id = os.environ["SPOTIFY_CLIENT_ID"]  # Set these in your Lambda environment variables
+client_id = os.environ["SPOTIFY_CLIENT_ID"]  
 client_secret = os.environ["SPOTIFY_CLIENT_SECRET"]
 redirect_uri = os.environ["SPOTIFY_REDIRECT_URI"]
 
@@ -16,9 +16,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope="user-modify-playback-state,user-read-playback-state"
 ))
 
-# Spotify URI of the song you want to play
 ywf = 'spotify:track:5HQVUIKwCEXpe7JIHyY734'
-track_uri = 'spotify:track:0ABtPTOutryfKhLRASnNNX'  # Example URI
+track_uri = 'spotify:track:0ABtPTOutryfKhLRASnNNX'
 
 def lambda_handler(event, context):
     devices = sp.devices()

@@ -1,0 +1,7 @@
+terraform.tfvars
+python/
+package/
+
+*.zip
+.cache
+.terraform*
