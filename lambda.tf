@@ -15,6 +15,7 @@ resource "aws_lambda_function" "main" {
 
     }
   }
+  source_code_hash = "${data.archive_file.grass.output_base64sha256}"
   layers = [aws_lambda_layer_version.lambda_layer.arn]
 }
 

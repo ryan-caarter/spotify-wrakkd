@@ -1,8 +1,8 @@
 resource "aws_cloudwatch_event_rule" "main" {
   name        = "daily-spotify-wrakkd-trigger"
-  description = "Triggers spotify-wrakkd every day at 6 AM and 9 PM"
+  description = "Triggers spotify-wrakkd every day at midnight"
   
-  schedule_expression = "cron(0 6,21 * * ? *)"
+  schedule_expression = "cron(0 0 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "main" {

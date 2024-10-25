@@ -1,8 +1,10 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
-from datetime import datetime
-import pytz
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 client_id = os.environ["SPOTIFY_CLIENT_ID"]  
 client_secret = os.environ["SPOTIFY_CLIENT_SECRET"]
@@ -17,35 +19,29 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 ))
 
 ywf = 'spotify:track:5HQVUIKwCEXpe7JIHyY734'
-track_uri = 'spotify:track:0ABtPTOutryfKhLRASnNNX'
+lawnmower = 'spotify:track:0ABtPTOutryfKhLRASnNNX'
 
 def lambda_handler(event, context):
     devices = sp.devices()
+    if not devices:
+        logger.info("No active devices found.")
+        return
+    
     for device in devices['devices']:
+        logger.info(f"Found device {device["name"]}")
+        device_id = device['id']
         try:
-            nzt_timezone = pytz.timezone("Pacific/Auckland")
-            current_time_nzt = datetime.now(nzt_timezone)
+            logger.info("Fixing your Spotify Wrapped...")
+            
+            logger.info("Turning volume to 0...")
+            sp.volume(0, device_id=device_id)
 
-            if current_time_nzt.hour > 5 and current_time_nzt.hour < 22:
-                sp.volume(100, device_id=device['id'])
-                print(f"Volume set to {100}% on device '{device['name']}'")
-                # sp.add_to_queue(ywf, device_id=device['id'])
+            logger.info("Starting playback...")
+            sp.start_playback(device_id=device_id, uris=[lawnmower])
             
-                sp.pause_playback(device_id=device['id'])
-                sp.repeat(state='off', device_id=device['id'])
-                print(f"Pausing device {device['name']}")
-            else:
-                sp.volume(0, device_id=device['id'])
-                print(f"Volume set to {0}% on device '{device['name']}'")
-                # sp.add_to_queue(ywf, device_id=device['id'])
-            
-                sp.start_playback(device_id=device['id'], uris=[track_uri])
-                sp.repeat(state='track', device_id=device['id'])
-                print(f"Playing track {track_uri} on device {device['name']}")
+            logger.info("Turning repeat on...")
+            sp.repeat(state='track', device_id=device_id)
+            logger.info("Done!")
+
         except Exception as e:
-            print(f"Error setting volume: {e}")
-        print(device['name'])
-
-
-print("No active devices found.") 
-
+            logger.info(f"Error: {e}")
